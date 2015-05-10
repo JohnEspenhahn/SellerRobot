@@ -21,7 +21,7 @@ public class Main {
 			procedure = new Procedure(new Main().getFileWithUtil("procedure.json"));
 			log.debug("Procedure: " + procedure.toString());
 			
-			app = new AppWindow("BlueStacks App Player", 723, 476);
+			app = new AppWindow(procedure.getWindowName(), procedure.getWindowWidth(), procedure.getWindowHeight());
 		} catch (Exception e) {
 			log.fatal(e.toString());
 			System.exit(-1);
@@ -31,7 +31,7 @@ public class Main {
 			Event e = procedure.get(i);
 			switch (e.getAction()) {
 			case CLICK:
-				app.click(Integer.parseInt(e.getParameter("x")), Integer.parseInt(e.getParameter("y")));
+				app.click(e.getInt("x"), e.getInt("y"));
 				break;
 			default:
 				throw new RuntimeException("Unhandled action " + e.getAction());

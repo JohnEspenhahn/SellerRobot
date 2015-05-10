@@ -1,4 +1,9 @@
-[
-	[ "click", { "x": 685, "y": 405 } ],
-	[ "click", { "x": 460, "y": 285 } ]
-]
+{
+	"window name": "BlueStacks App Player",
+	"window width": 723,
+	"window height": 476,
+	"procedure": [
+		[ "click", { "x": 685, "y": 405 } ],
+		[ "click", { "x": 460, "y": 285 } ]
+	]
+}

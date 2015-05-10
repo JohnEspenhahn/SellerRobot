@@ -13,16 +13,23 @@ import org.json.simple.parser.ParseException;
 import com.hahn.sellerrobot.util.exceptions.ProcedureParseException;
 
 public class Procedure {
-	List<Event> events;
+	private String window_name;
+	private int window_width, window_height;
+	
+	private List<Event> events;
 
 	public Procedure(String json_in) throws FileNotFoundException, ParseException, ProcedureParseException {
-		JSONParser parser = new JSONParser();
-		JSONArray mainJSONArray = (JSONArray) parser.parse(json_in);
+		JSONObject main = (JSONObject) new JSONParser().parse(json_in);
 		
-		this.events = new ArrayList<Event>(mainJSONArray.size());
+		this.window_name = (String) main.get("window name");
+		this.window_width = Integer.parseInt((String) main.get("window width"));
+		this.window_height = Integer.parseInt((String) main.get("window height"));
+		
+		JSONArray procedure_array = (JSONArray) main.get("procedure");
+		this.events = new ArrayList<Event>(procedure_array.size());
 
-		for (int i = 0; i < mainJSONArray.size(); i++) {
-			JSONArray jsonObj = (JSONArray) mainJSONArray.get(i);
+		for (int i = 0; i < procedure_array.size(); i++) {
+			JSONArray jsonObj = (JSONArray) procedure_array.get(i);
 
 			EnumAction action = null;
 			String action_name = jsonObj.get(0).toString();
@@ -35,6 +42,18 @@ public class Procedure {
 			JSONObject jsonParams = (JSONObject) jsonObj.get(1);
 			events.add(new Event(action, jsonParams));
 		}
+	}
+	
+	public String getWindowName() {
+		return window_name;
+	}
+	
+	public int getWindowWidth() {
+		return window_width;
+	}
+	
+	public int getWindowHeight() {
+		return window_height;
 	}
 	
 	public int size() {
@@ -71,8 +90,12 @@ public class Procedure {
 			return action;
 		}
 
-		public String getParameter(String name) {
+		public String getString(String name) {
 			return parameters.get(name).toString();
+		}
+		
+		public int getInt(String name) {
+			return Integer.parseInt(getString(name));
 		}
 
 		@Override
