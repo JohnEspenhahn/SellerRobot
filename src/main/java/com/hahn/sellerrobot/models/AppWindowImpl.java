@@ -4,6 +4,7 @@ import java.awt.AWTException;
 import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,12 +53,13 @@ public class AppWindowImpl implements Window {
 	}
 	
 	private void refreshLocation() throws WindowNotFoundException, GetWindowRectException {
-		if (this.last_check - System.currentTimeMillis() < 100) {
+		if (System.currentTimeMillis() - this.last_check > 100) {
+			this.last_check = System.currentTimeMillis();
+			
+			// log.debug("Refreshing " + window_name + "'s location");
 			int[] rect = User32.getRect(window_name);
 			this.top_left = new Point(rect[0], rect[1]);
 			this.bottom_right = new Point(rect[2], rect[3]);
-			
-			this.last_check = System.currentTimeMillis();
 		}
 	}
 	
@@ -77,6 +79,8 @@ public class AppWindowImpl implements Window {
 	}
 	
 	private void fixSize() throws WindowNotFoundException, GetWindowRectException, ResizeWindowException {
+		if (this.expected_width < 0 || this.expected_height < 0) return;
+		
 		int width = getRealWidth();
 		int height = getRealHeight();
 		
@@ -104,42 +108,55 @@ public class AppWindowImpl implements Window {
 	}
 	
 	@Override
-	public synchronized boolean resize(int width, int height) {
+	public synchronized void resize(int width, int height) throws WindowNotFoundException, GetWindowRectException, ResizeWindowException {
 		this.expected_width = width;
 		this.expected_height = height;
 		
-		try {
-			fixSize();
-		} catch (WindowNotFoundException | GetWindowRectException | ResizeWindowException e) {
-			log.error(e);
-			
-			return false;
-		}
-		
-		return true;
+		fixSize();
 	}
 	
 	@Override
-	public synchronized boolean click(int x, int y) {
-		try {			
-			fixSize();
-			bringToFront();
-			
-			log.debug(String.format("Clicking window %s at %dx%d", this.window_name, x, y));
-			
-			Point loc = getTopLeft();
-			robot.mouseMove(x + loc.x, y + loc.y);
-			
-			robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-			Thread.sleep(1000);
-			robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		} catch (Exception e) {
-			log.error(e);
-			
-			return false;
-		}
+	public synchronized void click(int x, int y) throws WindowNotFoundException, GetWindowRectException, ResizeWindowException, WindowToForegroundException, InterruptedException {
+		fixSize();
+		bringToFront();
 		
-		return true;
+		Point loc = getTopLeft();
+		log.debug(String.format("Clicking window %s at %dx%d", this.window_name, x, y));
+		// log.debug(String.format("Top left at absolute %dx%d", loc.x, loc.y));
+		
+		robot.mouseMove(x + loc.x, y + loc.y);
+		
+		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		Thread.sleep(1000);
+		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 	}
 	
+	@Override
+	public synchronized void type(String text) throws WindowNotFoundException, WindowToForegroundException {
+		log.debug("Typing '" + text + "'");
+		bringToFront();
+		
+		// Type the text
+		for (char c: text.toCharArray()) {
+			if (Character.isUpperCase(c)) {
+	            robot.keyPress(KeyEvent.VK_SHIFT);
+	        }
+			
+			int keyCode = KeyEvent.getExtendedKeyCodeForChar(c);			
+	        robot.keyPress(keyCode);
+	        robot.keyRelease(keyCode);
+
+	        if (Character.isUpperCase(c)) {
+	            robot.keyRelease(KeyEvent.VK_SHIFT);
+	        }
+		}
+	}
+	
+	@Override
+	public synchronized void mouseWheel(int amount) throws WindowNotFoundException, WindowToForegroundException {
+		log.debug("Mouse wheeling " + amount);
+		bringToFront();
+		
+		robot.mouseWheel(amount);
+	}
 }

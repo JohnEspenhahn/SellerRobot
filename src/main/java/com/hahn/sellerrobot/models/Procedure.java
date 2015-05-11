@@ -1,38 +1,70 @@
 package com.hahn.sellerrobot.models;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.hahn.sellerrobot.util.RunDeterminant;
 import com.hahn.sellerrobot.util.exceptions.ProcedureParseException;
 
-public class Procedure {	
+public class Procedure {
+	private static JSONObjectHandler jsonObjectHandler;
+	
+	private RunDeterminant determinant;
 	private List<Event> events;
 
-	public Procedure(String json_in) throws FileNotFoundException, ParseException, ProcedureParseException {
-		JSONObject main = (JSONObject) new JSONParser().parse(json_in);
+	public Procedure(String json_in, FilesCollection files) throws ParseException, ProcedureParseException, IOException {
+		if (jsonObjectHandler == null) jsonObjectHandler = new JSONObjectHandler(files);
 		
+		JSONObject main = (JSONObject) files.parseJSON(json_in);
+		
+		// Parse setup
+		JSONArray setup_array = (JSONArray) main.get("setup");
+		for (int i = 0; i < setup_array.size(); i++) {
+			JSONArray action_arr = (JSONArray) setup_array.get(i);
+			
+			EnumSetupAction action = null;
+			String action_name = action_arr.get(0).toString();
+			try {
+				action = EnumSetupAction.valueOf(action_name.toUpperCase());
+			} catch (IllegalArgumentException e) {
+				throw new ProcedureParseException("Unknow setup action " + action_name);
+			}
+			
+			JSONObject action_params = (JSONObject) action_arr.get(1);			
+			switch (action) {
+			case READ:
+				String fileName = (String) action_params.get("file");
+				files.readFile(fileName);
+				break;
+			case DETERMINANT:
+				determinant = jsonObjectHandler.toDeterminant(action_params);
+				break;
+			}
+		}
+		
+		
+		// Parse procedure
 		JSONArray procedure_array = (JSONArray) main.get("procedure");
 		this.events = new ArrayList<Event>(procedure_array.size());
 
 		for (int i = 0; i < procedure_array.size(); i++) {
-			JSONArray jsonObj = (JSONArray) procedure_array.get(i);
+			JSONArray action_arr = (JSONArray) procedure_array.get(i);
 
 			EnumAction action = null;
-			String action_name = jsonObj.get(0).toString();
+			String action_name = action_arr.get(0).toString();
 			try {
 				action = EnumAction.valueOf(action_name.toUpperCase());
 			} catch (IllegalArgumentException e) {
 				throw new ProcedureParseException("Unknow action " + action_name);
 			}
 			
-			JSONObject jsonParams = (JSONObject) jsonObj.get(1);
+			JSONObject jsonParams = (JSONObject) action_arr.get(1);
 			events.add(new Event(action, jsonParams));
 		}
 	}
@@ -43,6 +75,10 @@ public class Procedure {
 	
 	public Event get(int idx) {
 		return events.get(idx);
+	}
+	
+	public RunDeterminant getRunDeterminant() {
+		return determinant;
 	}
 
 	@Override
@@ -62,7 +98,7 @@ public class Procedure {
 		private Map parameters;
 
 		@SuppressWarnings("rawtypes")
-		public Event(EnumAction action, Map parameters) {
+		private Event(EnumAction action, Map parameters) {
 			this.action = action;
 			this.parameters = parameters;
 		}
@@ -72,7 +108,11 @@ public class Procedure {
 		}
 
 		public String getString(String name) {
-			return parameters.get(name).toString();
+			Object obj = parameters.get(name);
+			if (obj == null) return "null";
+			else if (obj instanceof String) return (String) obj;
+			else if (obj instanceof JSONObject) return jsonObjectHandler.toString((JSONObject) obj);
+			else return obj.toString();
 		}
 		
 		public int getInt(String name) {
@@ -100,11 +140,26 @@ public class Procedure {
 
 			return String.format("%s(%s)", getAction(), paramStrs);
 		}
-
 	}
 
+	public enum EnumSetupAction {
+		/** Read a file { String file } */
+		READ,
+		/** Determines how many times the procedure will be executed { String type, String file } */
+		DETERMINANT;
+	}
+	
 	public enum EnumAction {
-		CLICK, SLEEP, FOCUS;
+		/** { int x, int y } */
+		CLICK, 
+		/** { int ms } */
+		SLEEP,
+		/** { Object name, optional int width, optional int height } */
+		FOCUS,
+		/** { Object text } */
+		TYPE,
+		/** { int amount } */
+		WHEEL;
 	}
-
+	
 }
