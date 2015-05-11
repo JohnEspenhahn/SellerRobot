@@ -22,8 +22,8 @@ import com.hahn.sellerrobot.util.exceptions.WindowToForegroundException;
  * 	http://stackoverflow.com/questions/6091531/how-to-get-the-x-and-y-of-a-program-window-in-java
  *
  */
-public class AppWindow implements IWindow {
-	private static Logger log = LogManager.getLogger(AppWindow.class);
+public class AppWindowImpl implements Window {
+	private static Logger log = LogManager.getLogger(AppWindowImpl.class);
 	
 	private String window_name;
 	private int expected_width, expected_height;
@@ -33,14 +33,22 @@ public class AppWindow implements IWindow {
 	
 	private Robot robot;
 	
-	public AppWindow(String window_name, int expected_width, int expected_height) throws AWTException, WindowNotFoundException, GetWindowRectException {		
+	public AppWindowImpl(String window_name, int expected_width, int expected_height) throws AWTException, WindowNotFoundException, GetWindowRectException {		
 		this.window_name = window_name;
 		this.expected_width = expected_width;
 		this.expected_height = expected_height;
 		
 		this.robot = new Robot();
-		
-		refreshLocation();
+	}
+	
+	@Override
+	public int getWidth() {
+		return expected_width;
+	}
+	
+	@Override
+	public int getHeight() {
+		return expected_height;
 	}
 	
 	private void refreshLocation() throws WindowNotFoundException, GetWindowRectException {
@@ -58,19 +66,19 @@ public class AppWindow implements IWindow {
 		return this.top_left;
 	}
 	
-	private int getWidth() throws WindowNotFoundException, GetWindowRectException {
+	private int getRealWidth() throws WindowNotFoundException, GetWindowRectException {
 		refreshLocation();
 		return this.bottom_right.x - this.top_left.x;
 	}
 	
-	private int getHeight() throws WindowNotFoundException, GetWindowRectException {
+	private int getRealHeight() throws WindowNotFoundException, GetWindowRectException {
 		refreshLocation();
 		return this.bottom_right.y - this.top_left.y;
 	}
 	
 	private void fixSize() throws WindowNotFoundException, GetWindowRectException, ResizeWindowException {
-		int width = getWidth();
-		int height = getHeight();
+		int width = getRealWidth();
+		int height = getRealHeight();
 		
 		if (width != this.expected_width || height != this.expected_height) {
 			log.debug(String.format("Resizing window %s to %dx%d", this.window_name, this.expected_width, this.expected_height));
@@ -96,12 +104,28 @@ public class AppWindow implements IWindow {
 	}
 	
 	@Override
-	public boolean click(int x, int y) {
+	public synchronized boolean resize(int width, int height) {
+		this.expected_width = width;
+		this.expected_height = height;
+		
+		try {
+			fixSize();
+		} catch (WindowNotFoundException | GetWindowRectException | ResizeWindowException e) {
+			log.error(e);
+			
+			return false;
+		}
+		
+		return true;
+	}
+	
+	@Override
+	public synchronized boolean click(int x, int y) {
 		try {			
 			fixSize();
 			bringToFront();
 			
-			log.debug("Clicking window " + this.window_name);
+			log.debug(String.format("Clicking window %s at %dx%d", this.window_name, x, y));
 			
 			Point loc = getTopLeft();
 			robot.mouseMove(x + loc.x, y + loc.y);
@@ -109,13 +133,13 @@ public class AppWindow implements IWindow {
 			robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 			Thread.sleep(1000);
 			robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-			
-			return true;
 		} catch (Exception e) {
 			log.error(e);
 			
 			return false;
 		}
+		
+		return true;
 	}
 	
 }

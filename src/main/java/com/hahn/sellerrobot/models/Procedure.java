@@ -12,18 +12,11 @@ import org.json.simple.parser.ParseException;
 
 import com.hahn.sellerrobot.util.exceptions.ProcedureParseException;
 
-public class Procedure {
-	private String window_name;
-	private int window_width, window_height;
-	
+public class Procedure {	
 	private List<Event> events;
 
 	public Procedure(String json_in) throws FileNotFoundException, ParseException, ProcedureParseException {
 		JSONObject main = (JSONObject) new JSONParser().parse(json_in);
-		
-		this.window_name = (String) main.get("window name");
-		this.window_width = Integer.parseInt((String) main.get("window width"));
-		this.window_height = Integer.parseInt((String) main.get("window height"));
 		
 		JSONArray procedure_array = (JSONArray) main.get("procedure");
 		this.events = new ArrayList<Event>(procedure_array.size());
@@ -42,18 +35,6 @@ public class Procedure {
 			JSONObject jsonParams = (JSONObject) jsonObj.get(1);
 			events.add(new Event(action, jsonParams));
 		}
-	}
-	
-	public String getWindowName() {
-		return window_name;
-	}
-	
-	public int getWindowWidth() {
-		return window_width;
-	}
-	
-	public int getWindowHeight() {
-		return window_height;
 	}
 	
 	public int size() {
@@ -97,6 +78,10 @@ public class Procedure {
 		public int getInt(String name) {
 			return Integer.parseInt(getString(name));
 		}
+		
+		public boolean has(String name) {
+			return parameters.containsKey(name);
+		}
 
 		@Override
 		public String toString() {
@@ -119,7 +104,7 @@ public class Procedure {
 	}
 
 	public enum EnumAction {
-		CLICK;
+		CLICK, SLEEP, FOCUS;
 	}
 
 }

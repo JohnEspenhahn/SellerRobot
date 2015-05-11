@@ -1,47 +1,118 @@
 package com.hahn.sellerrobot;
 
+import java.awt.AWTException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.hahn.sellerrobot.models.Procedure.Event;
+import com.hahn.sellerrobot.util.exceptions.MissingArgumentException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.hahn.sellerrobot.models.AppWindow;
+import com.hahn.sellerrobot.models.AppWindowImpl;
 import com.hahn.sellerrobot.models.Procedure;
+import com.hahn.sellerrobot.models.Procedure.Event;
+import com.hahn.sellerrobot.models.Window;
+import com.hahn.sellerrobot.util.exceptions.GetWindowRectException;
+import com.hahn.sellerrobot.util.exceptions.WindowNotFoundException;
 
 public class Main {
 	public static Logger log = LogManager.getLogger(Main.class);
 
 	public static void main(String[] args) {
-		AppWindow app = null;
-		Procedure procedure = null;
+		// new Console();
+		
+		Main main = new Main();
+		while (true) {
+			try {
+				main.execute();
+				Thread.sleep(1000 * 60 * 30);
+			} catch (Exception e) {
+				log.fatal("A fatal error has occured!", e);
+			}
+		}
+	}
+	
+	private String focused_window; 
+	private Map<String, Window> windows;
+	
+	private Procedure procedure;
+	
+	public Main() {
+		windows = new HashMap<String, Window>();
+		
+		procedure = null;
 		try {
-			procedure = new Procedure(new Main().getFileWithUtil("procedure.json"));
+			procedure = new Procedure(getFileWithUtil("procedure.json"));
 			log.debug("Procedure: " + procedure.toString());
-			
-			app = new AppWindow(procedure.getWindowName(), procedure.getWindowWidth(), procedure.getWindowHeight());
 		} catch (Exception e) {
-			log.fatal(e.toString());
+			log.fatal("A fatal error has occured!", e);
 			System.exit(-1);
 		}
-		
+	}
+	
+	public Window getFocusedWindow() {
+		if (focused_window == null) throw new RuntimeException("Tried to click a window before focusing on one");
+		return windows.get(focused_window);
+	}
+	
+	public void execute() throws AWTException, WindowNotFoundException, GetWindowRectException, MissingArgumentException {
 		for (int i = 0; i < procedure.size(); i++) {
 			Event e = procedure.get(i);
 			switch (e.getAction()) {
 			case CLICK:
-				app.click(e.getInt("x"), e.getInt("y"));
+				getFocusedWindow().click(e.getInt("x"), e.getInt("y"));
 				break;
-			default:
-				throw new RuntimeException("Unhandled action " + e.getAction());
+			case FOCUS:
+				focusWindow(e);
+				break;
+			case SLEEP:
+				sleep(e.getInt("ms"));
+				break;
 			}
+		}
+	}
+	
+	public void focusWindow(Event e) throws AWTException, WindowNotFoundException, GetWindowRectException, MissingArgumentException {
+		focused_window = e.getString("name");
+		if (!windows.containsKey(focused_window)) {
+			int width, height;
+			if (e.has("width")) width = e.getInt("width");
+			else throw new MissingArgumentException("Must specify width when focusing on a window for the first time");
+			
+			if (e.has("height")) height = e.getInt("height");
+			else throw new MissingArgumentException("Must specify height when focusing on a window for the first time");
+			
+			windows.put(focused_window, new AppWindowImpl(focused_window, width, height));
+		} else if (e.has("width") || e.has("height")) {
+			Window window = windows.get(focused_window);
+			
+			int width, height;
+			if (e.has("width")) width = e.getInt("width");
+			else width = window.getWidth();
+			
+			if (e.has("height")) height = e.getInt("height");
+			else height = window.getHeight();
+			
+			window.resize(width, height);
+		}
+	}
+	
+	public void sleep(int ms) {
+		try {
+			log.debug("Sleeping for " + ms + "ms");
+			Thread.sleep(ms);
+		} catch (InterruptedException e1) {
+			log.error("An error occured while trying to sleep: \n" + e1.toString());
 		}
 	}
 	
 	private String getFileWithUtil(String fileName) {
 		String result = "";
 
+		log.debug("Loading file " + fileName);
 		ClassLoader classLoader = getClass().getClassLoader();
 		try {
 			result = IOUtils.toString(classLoader.getResourceAsStream(fileName));

@@ -21,9 +21,14 @@
 			<PatternLayout
 				pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n" />
 		</Console>
-		<SMTP smtpPort="25" subject="Error Log" to="johnshub99@gmail.com" from="logger@espenhahn.org" smtpHost="aspmx.l.google.com" bufferSize="50" name="smtp">
+		<SMTP smtpPort="25" subject="Error Log" to="johnshub99@gmail.com"
+			from="logger@espenhahn.org" smtpHost="aspmx.l.google.com" bufferSize="50"
+			name="smtp">
 			<PatternLayout>
-				<pattern>[%-5level] [%t] %c{1} - %msg%n</pattern></PatternLayout></SMTP></Appenders>
+				<pattern>[%-5level] [%t] %c{1} - %msg%n</pattern>
+			</PatternLayout>
+		</SMTP>
+	</Appenders>
 	<Loggers>
 		<Root level="debug" additivity="false">
 			<appender-ref ref="file-log" level="info"></appender-ref>

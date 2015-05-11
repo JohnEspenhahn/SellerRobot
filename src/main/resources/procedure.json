@@ -1,9 +1,9 @@
 {
-	"window name": "BlueStacks App Player",
-	"window width": 723,
-	"window height": 476,
 	"procedure": [
+		[ "focus", { "name": "BlueStacks App Player", "width": 723, "height": 476 } ],
 		[ "click", { "x": 685, "y": 405 } ],
-		[ "click", { "x": 460, "y": 285 } ]
+		[ "sleep", { "ms": 5000 } ],
+		[ "click", { "x": 460, "y": 285 } ],
+		[ "sleep", { "ms": 5000 } ]
 	]
 }
