@@ -1,4 +1,4 @@
-package com.hahn.sellerrobot.model;
+package com.hahn.sellerrobot.controller;
 
 import java.awt.AWTException;
 import java.awt.Point;
@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.hahn.sellerrobot.model.Window;
 import com.hahn.sellerrobot.util.User32;
 import com.hahn.sellerrobot.util.exceptions.GetWindowRectException;
 import com.hahn.sellerrobot.util.exceptions.ResizeWindowException;
@@ -34,7 +35,14 @@ public class WindowImpl implements Window {
 	
 	private Robot robot;
 	
-	public WindowImpl(String window_name, int expected_width, int expected_height) throws AWTException, WindowNotFoundException, GetWindowRectException {		
+	/**
+	 * 
+	 * @param window_name The name of the window
+	 * @param expected_width The target/expected width of the window
+	 * @param expected_height The target/expected height of the window
+	 * @throws AWTException If failed to create Robot
+	 */
+	public WindowImpl(String window_name, int expected_width, int expected_height) throws AWTException {		
 		this.window_name = window_name;
 		this.expected_width = expected_width;
 		this.expected_height = expected_height;
@@ -116,7 +124,7 @@ public class WindowImpl implements Window {
 	}
 	
 	@Override
-	public synchronized void click(int x, int y) throws WindowNotFoundException, GetWindowRectException, ResizeWindowException, WindowToForegroundException, InterruptedException {
+	public synchronized void click(int x, int y) throws WindowNotFoundException, GetWindowRectException, ResizeWindowException, WindowToForegroundException {
 		fixSize();
 		bringToFront();
 		
@@ -127,7 +135,13 @@ public class WindowImpl implements Window {
 		robot.mouseMove(x + loc.x, y + loc.y);
 		
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		Thread.sleep(1000);
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			log.debug(e);
+		}
+		
 		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 	}
 	

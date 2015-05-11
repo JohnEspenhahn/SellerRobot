@@ -6,8 +6,6 @@ import java.util.List;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import com.hahn.sellerrobot.util.RunDeterminant;
-
 public class CSVFile implements RunDeterminant {
 	private List<CSVRecord> records;
 	private int row;

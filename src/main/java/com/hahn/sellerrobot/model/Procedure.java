@@ -1,164 +1,81 @@
 package com.hahn.sellerrobot.model;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
+import org.apache.commons.lang3.StringUtils;
 
-import com.hahn.sellerrobot.util.RunDeterminant;
-import com.hahn.sellerrobot.util.exceptions.ProcedureParseException;
+import com.hahn.sellerrobot.util.MapUtils;
+import com.hahn.sellerrobot.util.exceptions.MissingArgumentException;
 
 public class Procedure {
-	private static JSONObjectHandler jsonObjectHandler;
+	private List<Action> setup;
+	private List<Action> procedure;
 	
-	private RunDeterminant determinant;
-	private List<Event> events;
-
-	public Procedure(String json_filename, FilesCollection files) throws ParseException, ProcedureParseException, IOException {
-		if (jsonObjectHandler == null) jsonObjectHandler = new JSONObjectHandler(files);
-		
-		JSONObject main = (JSONObject) files.parse(json_filename);
-		
-		// Parse setup
-		JSONArray setup_array = (JSONArray) main.get("setup");
-		for (int i = 0; i < setup_array.size(); i++) {
-			JSONArray action_arr = (JSONArray) setup_array.get(i);
-			
-			EnumSetupAction action = null;
-			String action_name = action_arr.get(0).toString();
-			try {
-				action = EnumSetupAction.valueOf(action_name.toUpperCase());
-			} catch (IllegalArgumentException e) {
-				throw new ProcedureParseException("Unknow setup action " + action_name);
-			}
-			
-			JSONObject action_params = (JSONObject) action_arr.get(1);			
-			switch (action) {
-			case READ:
-				files.parse((String) action_params.get("filename"), (String) action_params.get("type"));
-				break;
-			case DETERMINANT:
-				determinant = jsonObjectHandler.toDeterminant(action_params);
-				break;
-			}
-		}
-		
-		
-		// Parse procedure
-		JSONArray procedure_array = (JSONArray) main.get("procedure");
-		this.events = new ArrayList<Event>(procedure_array.size());
-
-		for (int i = 0; i < procedure_array.size(); i++) {
-			JSONArray action_arr = (JSONArray) procedure_array.get(i);
-
-			EnumAction action = null;
-			String action_name = action_arr.get(0).toString();
-			try {
-				action = EnumAction.valueOf(action_name.toUpperCase());
-			} catch (IllegalArgumentException e) {
-				throw new ProcedureParseException("Unknow action " + action_name);
-			}
-			
-			JSONObject jsonParams = (JSONObject) action_arr.get(1);
-			events.add(new Event(action, jsonParams));
-		}
+	public void setSetup(List<Action> setup) {
+		this.setup = setup;
 	}
 	
-	public int size() {
-		return events.size();
+	public List<Action> getSetup() {
+		return this.setup;
 	}
 	
-	public Event get(int idx) {
-		return events.get(idx);
+	public void setProcedure(List<Action> procedure) {
+		this.procedure = procedure;
 	}
 	
-	public RunDeterminant getRunDeterminant() {
-		return determinant;
+	public List<Action> getProcedure() {
+		return this.procedure;
 	}
-
+	
 	@Override
 	public String toString() {
-		String str = "";
-		for (Event e: events) {
-			str += e.toString() + "; ";
-		}
-		
-		return str;
-	}
-
-	public static class Event {
-		private EnumAction action;
-
-		@SuppressWarnings("rawtypes")
-		private Map parameters;
-
-		@SuppressWarnings("rawtypes")
-		private Event(EnumAction action, Map parameters) {
-			this.action = action;
-			this.parameters = parameters;
-		}
-
-		public EnumAction getAction() {
-			return action;
-		}
-
-		public String getString(String name) {
-			Object obj = parameters.get(name);
-			if (obj == null) return "null";
-			else if (obj instanceof String) return (String) obj;
-			else if (obj instanceof JSONObject) return jsonObjectHandler.toString((JSONObject) obj);
-			else return obj.toString();
-		}
-		
-		public int getInt(String name) {
-			return Integer.parseInt(getString(name));
-		}
-		
-		public boolean has(String name) {
-			return parameters.containsKey(name);
-		}
-
-		@Override
-		public String toString() {
-			// Build parameters to a string
-			String paramStrs = "";
-			paramStrs += "{";
-			
-			boolean first = true;
-			for (Object key : parameters.keySet()) {
-				if (first) first = false;
-				else paramStrs += ", ";
-				
-				paramStrs += String.format("%s: %s", key.toString(), parameters.get(key).toString());
-			}
-			paramStrs += "}";
-
-			return String.format("%s(%s)", getAction(), paramStrs);
-		}
-	}
-
-	public enum EnumSetupAction {
-		/** Read a file { String file } */
-		READ,
-		/** Determines how many times the procedure will be executed { String type, String file } */
-		DETERMINANT;
+		return "Setup:\n" + StringUtils.join(setup, ",") + "\nProcedure:\n" + StringUtils.join(procedure, ",");
 	}
 	
 	public enum EnumAction {
-		/** { int x, int y } */
-		CLICK, 
-		/** { int ms } */
-		SLEEP,
-		/** { Object name, optional int width, optional int height } */
-		FOCUS,
-		/** { Object text } */
-		TYPE,
-		/** { int amount } */
-		WHEEL;
+		read, determinant,
+		click, type, focus, sleep, wheel
 	}
 	
+	public static class Action {
+		private EnumAction action;
+		private Map<String, Object> params;
+		
+		public Action() { }
+		
+		public EnumAction getAction() { 
+			return action; 
+		}
+		
+		public void setAction(EnumAction action) throws IllegalArgumentException, MissingArgumentException {
+			this.action = action;
+			
+			if (getParams() != null) ActionVerifier.verify(this);
+		}
+		
+		protected Map<String, Object> getParams() {
+			return params;
+		}
+		
+		public void setParams(Map<String, Object> params) throws IllegalArgumentException, MissingArgumentException {
+			this.params = params;
+			
+			if (getAction() != null) ActionVerifier.verify(this);
+		}
+		
+		public boolean has(String name) {
+			return getParams() != null && getParams().containsKey(name);
+		}
+		
+		public Object get(String name) {
+			if (getParams() != null) return getParams().get(name);
+			else return null;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("%s(%s)", getAction(), MapUtils.map2str(getParams()));
+		}
+	}
 }

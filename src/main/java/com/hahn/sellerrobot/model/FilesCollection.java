@@ -10,38 +10,35 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public class FilesCollection {
 	private static Logger log = LogManager.getLogger(FilesCollection.class);
 	
-	private HashMap<String, TypedFileCollection<?>> collections;
-	private JSONParser jsonParser;
+	private Map<String, TypedFileCollection<?>> collections;
 	
 	public FilesCollection() {
-		jsonParser = new JSONParser();
+		collections = new HashMap<String, TypedFileCollection<?>>();
 		
 		collections.put("csv", new TypedFileCollection<CSVFile>("csv") {
 			@Override
-			public CSVFile doParse(String filename) throws IOException, ParseException {
+			public CSVFile doParse(String filename) throws IOException {
 				return new CSVFile(CSVParser.parse(getFileWithUtil(filename), CSVFormat.DEFAULT));
 			}
 		});
 				
-		collections.put("json", new TypedFileCollection<Object>("json") {
+		collections.put("json", new TypedFileCollection<String>("json") {
 			@Override
-			public Object doParse(String filename) throws IOException, ParseException {
-				return jsonParser.parse(getFileWithUtil(filename));
+			public String doParse(String filename) throws IOException {
+				return getFileWithUtil(filename);
 			}
 		});
 	}
 	
-	public Object parse(String filename) throws IOException, ParseException {
+	public Object parse(String filename) throws IOException {
 		return parse(FilenameUtils.getBaseName(filename), FilenameUtils.getExtension(filename));		
 	}
 	
-	public Object parse(String basename, String extension) throws IOException, ParseException {
+	public Object parse(String basename, String extension) throws IOException {
 		TypedFileCollection<?> collection = collections.get(extension);
 		if (collection != null) return collection.parse(basename + "." + extension);
 		else throw new IllegalArgumentException("Unhandled file extension " + extension);
@@ -80,13 +77,13 @@ public class FilesCollection {
 			this.extension = extension;
 		}
 		
-		public final E parse(String filename) throws IOException, ParseException {
+		public final E parse(String filename) throws IOException {
 			E parsed = doParse(filename);
 			put(filename, parsed);
 			return parsed;
 		}
 		
-		protected abstract E doParse(String filename) throws IOException, ParseException;
+		protected abstract E doParse(String filename) throws IOException;
 		
 		public void put(String filename, E file) {
 			files.put(FilenameUtils.getBaseName(filename), file);

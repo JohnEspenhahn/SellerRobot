@@ -19,7 +19,7 @@ public interface Window {
 	 * @param x Relative x location
 	 * @param y Relative y location
 	 */
-	void click(int x, int y) throws WindowNotFoundException, GetWindowRectException, ResizeWindowException, WindowToForegroundException, InterruptedException;
+	void click(int x, int y) throws WindowNotFoundException, GetWindowRectException, ResizeWindowException, WindowToForegroundException;
 	
 	/**
 	 * Use the robot to type the given text

@@ -1,4 +1,4 @@
-package com.hahn.sellerrobot.util;
+package com.hahn.sellerrobot.model;
 
 public interface RunDeterminant {
 
