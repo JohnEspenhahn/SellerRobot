@@ -1,4 +1,4 @@
-package com.hahn.sellerrobot.models;
+package com.hahn.sellerrobot.model;
 
 import org.json.simple.JSONObject;
 
@@ -14,26 +14,29 @@ public class JSONObjectHandler {
 
 	public String toString(JSONObject obj) {
 		EnumJSONObjectType type = getType(obj);
+		String filename = (String) obj.get("filename");
 		
 		switch (type) {
 		case CSV:
-			String file = (String) obj.get("file");
 			int column = (int) (long) obj.get("column");
-			return files.getCSV(file).get(column);
+			return ((CSVFile) files.get(filename, "csv")).get(column);
+		case JSON:
+			Object idx = obj.get("index");
+			return ((JSONObject) files.get(filename, "json")).get(idx).toString();
 		default:
-			throw new IllegalArgumentException("Unknow JSONObject type " + type);
+			throw new IllegalArgumentException("Unknown JSONObject type " + type);
 		}
 	}
 
 	public RunDeterminant toDeterminant(JSONObject obj) {		
 		EnumJSONObjectType type = getType(obj);
+		String filename = (String) obj.get("filename");
 		
 		switch (type) {
 		case CSV:
-			String file = (String) obj.get("file");
-			return files.getCSV(file);
+			return (CSVFile) files.get(filename, "csv");
 		default:
-			throw new IllegalArgumentException("Unknow JSONObject type " + type);
+			throw new IllegalArgumentException("Unhandled JSONObject determinant type " + type);
 		}
 	}
 	
@@ -49,6 +52,6 @@ public class JSONObjectHandler {
 	}
 	
 	enum EnumJSONObjectType {
-		CSV;
+		CSV, JSON;
 	}
 }

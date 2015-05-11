@@ -1,4 +1,4 @@
-package com.hahn.sellerrobot.models;
+package com.hahn.sellerrobot.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,10 +18,10 @@ public class Procedure {
 	private RunDeterminant determinant;
 	private List<Event> events;
 
-	public Procedure(String json_in, FilesCollection files) throws ParseException, ProcedureParseException, IOException {
+	public Procedure(String json_filename, FilesCollection files) throws ParseException, ProcedureParseException, IOException {
 		if (jsonObjectHandler == null) jsonObjectHandler = new JSONObjectHandler(files);
 		
-		JSONObject main = (JSONObject) files.parseJSON(json_in);
+		JSONObject main = (JSONObject) files.parse(json_filename);
 		
 		// Parse setup
 		JSONArray setup_array = (JSONArray) main.get("setup");
@@ -39,8 +39,7 @@ public class Procedure {
 			JSONObject action_params = (JSONObject) action_arr.get(1);			
 			switch (action) {
 			case READ:
-				String fileName = (String) action_params.get("file");
-				files.readFile(fileName);
+				files.parse((String) action_params.get("filename"), (String) action_params.get("type"));
 				break;
 			case DETERMINANT:
 				determinant = jsonObjectHandler.toDeterminant(action_params);

@@ -7,11 +7,11 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.hahn.sellerrobot.models.AppWindowImpl;
-import com.hahn.sellerrobot.models.FilesCollection;
-import com.hahn.sellerrobot.models.Procedure;
-import com.hahn.sellerrobot.models.Procedure.Event;
-import com.hahn.sellerrobot.models.Window;
+import com.hahn.sellerrobot.model.FilesCollection;
+import com.hahn.sellerrobot.model.Procedure;
+import com.hahn.sellerrobot.model.Window;
+import com.hahn.sellerrobot.model.WindowImpl;
+import com.hahn.sellerrobot.model.Procedure.Event;
 import com.hahn.sellerrobot.util.RunDeterminant;
 import com.hahn.sellerrobot.util.exceptions.GetWindowRectException;
 import com.hahn.sellerrobot.util.exceptions.MissingArgumentException;
@@ -107,7 +107,7 @@ public class Main {
 			if (e.has("height")) height = e.getInt("height");
 			else throw new MissingArgumentException("Must specify height when focusing on a window for the first time");
 			
-			windows.put(focused_window, new AppWindowImpl(focused_window, width, height));
+			windows.put(focused_window, new WindowImpl(focused_window, width, height));
 		} else if (e.has("width") || e.has("height")) {
 			log.debug(String.format("Switching focus to window %s", focused_window));
 			

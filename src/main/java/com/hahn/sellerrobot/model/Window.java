@@ -1,4 +1,4 @@
-package com.hahn.sellerrobot.models;
+package com.hahn.sellerrobot.model;
 
 import com.hahn.sellerrobot.util.exceptions.GetWindowRectException;
 import com.hahn.sellerrobot.util.exceptions.ResizeWindowException;

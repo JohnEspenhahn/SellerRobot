@@ -1,4 +1,4 @@
-package com.hahn.sellerrobot.models;
+package com.hahn.sellerrobot.model;
 
 import java.awt.AWTException;
 import java.awt.Point;
@@ -23,8 +23,8 @@ import com.hahn.sellerrobot.util.exceptions.WindowToForegroundException;
  * 	http://stackoverflow.com/questions/6091531/how-to-get-the-x-and-y-of-a-program-window-in-java
  *
  */
-public class AppWindowImpl implements Window {
-	private static Logger log = LogManager.getLogger(AppWindowImpl.class);
+public class WindowImpl implements Window {
+	private static Logger log = LogManager.getLogger(WindowImpl.class);
 	
 	private String window_name;
 	private int expected_width, expected_height;
@@ -34,7 +34,7 @@ public class AppWindowImpl implements Window {
 	
 	private Robot robot;
 	
-	public AppWindowImpl(String window_name, int expected_width, int expected_height) throws AWTException, WindowNotFoundException, GetWindowRectException {		
+	public WindowImpl(String window_name, int expected_width, int expected_height) throws AWTException, WindowNotFoundException, GetWindowRectException {		
 		this.window_name = window_name;
 		this.expected_width = expected_width;
 		this.expected_height = expected_height;
