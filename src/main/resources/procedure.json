@@ -1,49 +1,88 @@
 {
-	"setup": [
-		{ "action": "read", "params": { "type": "csv", "filename": "images" } },
-		{ "action": "determinant", "params": { "type": "csv", "filename": "images" } }
+	// What to do before ever running the procedure
+	setup: [
+		{ action: "read", params: { type: "csv", filename: "images" } },
+		{ action: "determinant", params: { type: "csv", filename: "images" } }
 	],
-	"procedure": [
-		{ "action": "focus", "params": { "name": "BlueStacks App Player", "width": 723, "height": 476 } },
-		{ "action": "click", "params": { "x": 685, "y": 405 } },
-		{ "action": "sleep", "params": { "ms": 10000  } },
-		{ "action": "click", "params": { "x": 460, "y": 285 } },
-		{ "action": "sleep", "params": { "ms": 5000 } },
-		{ "action": "focus", "params": { "name": "Open", "width": 800, "height": 590 } },
-		{ "action": "sleep", "params": { "ms": 1000 } },
-		{ "action": "click", "params": { "x": 510, "y": 48 } },
-		{ "action": "type" , "params": { "text": { "type": "csv", "filename": "images", "column": 0 } } },
-		{ "action": "type" , "params": { "text": "\n" } },
-		{ "action": "click", "params": { "x": 235, "y": 525 } },
-		{ "action": "type" , "params": { "text": { "type": "csv", "filename": "images", "column": 1 } } },
-		{ "action": "type" , "params": { "text": "\n" } },
-		{ "action": "sleep", "params": { "ms": 5000 } },
-		{ "action": "focus", "params": { "name": "BlueStacks App Player" } },
-		{ "action": "click", "params": { "x": 540, "y": 435 } },
-		{ "action": "sleep", "params": { "ms": 15000 } },
-		{ "action": "click", "params": { "x": 700, "y": 50 } },
-		{ "action": "sleep", "params": { "ms": 7000 } },
-		{ "action": "type" , "params": { "text": { "type": "csv", "filename": "images", "column": 2 } } },
-		{ "action": "type" , "params": { "text": "\t" } },
-		{ "action": "type" , "params": { "text": { "type": "csv", "filename": "images", "column": 3 } } },
-		{ "action": "click", "params": { "x": 355, "y": 185 } },
-		{ "action": "sleep", "params": { "ms": 3000 } },
-		{ "action": "click", "params": { "x": 355, "y": 290 } },
-		{ "action": "sleep", "params": { "ms": 2000 } },
-		{ "action": "click", "params": { "x": 355, "y": 195 } },
-		{ "action": "sleep", "params": { "ms": 2000 } },
-		{ "action": "click", "params": { "x": 355, "y": 240 } },
-		{ "action": "sleep", "params": { "ms": 2000 } },
-		{ "action": "click", "params": { "x": 355, "y": 230 } },
-		{ "action": "sleep", "params": { "ms": 2000 } },
-		{ "action": "click", "params": { "x": 355, "y": 80 } },
-		{ "action": "sleep", "params": { "ms": 2000 } },
-		{ "action": "click", "params": { "x": 355, "y": 380 } },
-		{ "action": "type" , "params": { "text": "\t" } },
-		{ "action": "type" , "params": { "text": { "type": "csv", "filename": "images", "column": 4 } } },
-		{ "action": "sleep", "params": { "ms": 1000 } },
-		{ "action": "click", "params": { "x": 660, "y": 360 } },
-		{ "action": "wheel", "params": { "amount": 600 } },
-		{ "action": "sleep", "params": { "ms": 10000 } }
+	
+	// What to run for each entry in the determinant (in the case of a CSV for each line)
+	procedure: [
+		{ action: "focus", params: { name: "BlueStacks App Player", width: 723, height: 476 } },
+		// Sell button
+		{ action: "click", params: { x: 685, y: 405 } },
+		{ action: "sleep", params: { ms: 10000  } },
+		// Go to gallery button
+		{ action: "click", params: { x: 460, y: 285 } },
+		{ action: "sleep", params: { ms: 5000 } },
+		{ action: "focus", params: { name: "Open", width: 800, height: 590 } }, // Needs to be adjusted for different resolutions
+		{ action: "sleep", params: { ms: 1000 } },
+		// Type location
+		{ action: "click", params: { x: 510, y: 48 } },
+		{ action: "type" , params: { text: { type: "csv", filename: "images", column: 0 } } }, // folder location
+		{ action: "type" , params: { text: "\n" } },
+		{ action: "click", params: { x: 235, y: 525 } },
+		{ action: "type" , params: { text: { type: "csv", filename: "images", column: 1 } } }, // file name 
+		{ action: "type" , params: { text: "\n" } },
+		{ action: "sleep", params: { ms: 5000 } },
+		{ action: "focus", params: { name: "BlueStacks App Player" } },
+		// Click DONE (won't appear for proper sized images, should still work)
+		{ action: "click", params: { x: 540, y: 440 } },
+		{ action: "sleep", params: { ms: 12000 } },
+		// Click second Done
+		{ action: "click", params: { x: 700, y: 50 } },
+		{ action: "sleep", params: { ms: 15000 } },
+		// Autofocues to item name field. Type it. Then tab and type description
+		{ action: "type" , params: { text: { type: "csv", filename: "images", column: 2 } } },
+		{ action: "type" , params: { text: "\t" } },
+		{ action: "type" , params: { text: { type: "csv", filename: "images", column: 3 } } },
+		// Select category
+		{ action: "log"  , params: { text: "Select category" } },
+		{ action: "click", params: { x: 355, y: 185 } },
+		{ action: "sleep", params: { ms: 3000 } },
+		{ action: "click", params: { x: 355, y: 290 } },
+		{ action: "sleep", params: { ms: 2000 } },
+		{ action: "click", params: { x: 355, y: 195 } },
+		{ action: "sleep", params: { ms: 2000 } },
+		{ action: "click", params: { x: 355, y: 240 } },
+		{ action: "sleep", params: { ms: 2000 } },
+		// Select condition
+		{ action: "log"  , params: { text: "Select condition" } }, 
+		{ action: "click", params: { x: 355, y: 230 } },
+		{ action: "sleep", params: { ms: 2000 } },
+		{ action: "click", params: { x: 355, y: 80 } },
+		{ action: "sleep", params: { ms: 2000 } },
+		// Click description field and then tab to pricing
+		{ action: "click", params: { x: 355, y: 380 } },
+		{ action: "type" , params: { text: "\t" } },
+		// Type pricing
+		{ action: "type" , params: { text: { type: "csv", filename: "images", column: 4 } } },
+		{ action: "sleep", params: { ms: 1000 } },
+		// Scroll to bottom
+		{ action: "click", params: { x: 660, y: 360 } },
+		{ action: "wheel", params: { amount: 600 } },
+		{ action: "sleep", params: { ms: 1000 } },
+		// Select Fee
+		{ action: "click", params: { x: 360, y: 180 } },
+		{ action: "sleep", params: { ms: 3000 } },
+		
+		// Click "I'll ship the item myself"
+		{ action: "click", params: { x: 360, y: 255 } },
+		{ action: "sleep", params: { ms: 1000 } },
+		// Click "I Agree"
+		{ action: "click", params: { x: 475, y: 275 } },
+		{ action: "sleep", params: { ms: 5000 } },
+		
+		// Click List
+		{ action: "click", params: { x: 360, y: 430 } },
+		{ action: "sleep", params: { ms: 7000 } },
+		// Click "CREATE ANOTHER LISTING"
+		{ action: "click", params: { x: 360, y: 255 } },
+		{ action: "sleep", params: { ms: 3000 } }
+	],
+	
+	// What to do after completing running the procedure for each entry in the determinant
+	end: [
+		// Sleep for 30 minutes
+		{ action: "sleep", params: { ms: 1800000 } }
 	]
 }

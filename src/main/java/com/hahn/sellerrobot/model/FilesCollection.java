@@ -1,5 +1,8 @@
 package com.hahn.sellerrobot.model;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,10 +60,23 @@ public class FilesCollection {
 	private String getFileWithUtil(String filename) {
 		String result = "";
 
+		final File file = new File(filename);
+		final File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+		
 		log.debug("Loading file " + filename);
 		ClassLoader classLoader = getClass().getClassLoader();
 		try {
-			result = IOUtils.toString(classLoader.getResourceAsStream(filename));
+			if (jarFile.isFile()) {
+				if (file.isFile()) {
+					result = IOUtils.toString(new FileInputStream(file));
+				} else {
+					log.debug("Extracting file " + filename + " from jar");
+					result = IOUtils.toString(classLoader.getResourceAsStream(filename));
+					IOUtils.write(result, new FileOutputStream(file));
+				}
+			} else {
+				result = IOUtils.toString(classLoader.getResourceAsStream(filename));
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

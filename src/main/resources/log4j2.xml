@@ -35,7 +35,6 @@
 		<Root level="debug" additivity="false">
 			<appender-ref ref="file-log" level="info"></appender-ref>
 			<appender-ref ref="console"></appender-ref>
-			<appender-ref ref="smtp" level="error"></appender-ref>
 		</Root>
 	</Loggers>
 </Configuration>

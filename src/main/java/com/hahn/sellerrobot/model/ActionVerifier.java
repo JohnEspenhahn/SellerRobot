@@ -14,15 +14,14 @@ public class ActionVerifier {
 		Map<String, Object> defparams = a.getParams();
 		
 		switch (a.getAction()) {
-		case read:
-			verifyParams(title, defparams, ParamFactory.get(String.class, "type"), ParamFactory.get(String.class, "filename"));
-			break;
 		case determinant:
+		case read:
 			verifyParams(title, defparams, ParamFactory.get(String.class, "type"), ParamFactory.get(String.class, "filename"));
 			break;
 		case click:
 			verifyParams(title, defparams, ParamFactory.get(Integer.class, "x"), ParamFactory.get(Integer.class, "y"));
 			break;
+		case log:
 		case type:
 			verifyParams(title, defparams, ParamFactory.get(Object.class, "text"));
 			break;

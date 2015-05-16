@@ -49,6 +49,7 @@ public class ProcedureController {
 	}
 	
 	public void execute() throws IOException, AWTException, WindowNotFoundException, GetWindowRectException, MissingArgumentException, ResizeWindowException, WindowToForegroundException {
+		// Run procedure for each in determinant
 		determinant.reset();
 		do {
 			for (Action a: procedure.getProcedure()) {
@@ -57,6 +58,13 @@ public class ProcedureController {
 			
 			determinant.next();
 		} while (determinant.hasNext());
+	}
+	
+	public void end() throws IOException, AWTException, WindowNotFoundException, GetWindowRectException, MissingArgumentException, ResizeWindowException, WindowToForegroundException {
+		// What to run after running procedure for each entry in determinant
+		for (Action a: procedure.getEnd()) {
+			handleAction(a);
+		}
 	}
 	
 	public void handleAction(Action a) throws IOException, AWTException, WindowNotFoundException, GetWindowRectException, MissingArgumentException, ResizeWindowException, WindowToForegroundException {
@@ -83,6 +91,9 @@ public class ProcedureController {
 			break;
 		case wheel:
 			getFocusedWindow().mouseWheel((int) a.get("amount"));
+			break;
+		case log:
+			log.info((String) a.get("text"));
 			break;
 		}
 	}

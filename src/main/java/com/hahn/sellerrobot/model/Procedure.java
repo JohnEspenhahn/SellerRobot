@@ -11,6 +11,7 @@ import com.hahn.sellerrobot.util.exceptions.MissingArgumentException;
 public class Procedure {
 	private List<Action> setup;
 	private List<Action> procedure;
+	private List<Action> end;
 	
 	public void setSetup(List<Action> setup) {
 		this.setup = setup;
@@ -28,6 +29,14 @@ public class Procedure {
 		return this.procedure;
 	}
 	
+	public void setEnd(List<Action> end) {
+		this.end = end;
+	}
+	
+	public List<Action> getEnd() {
+		return this.end;
+	}
+	
 	@Override
 	public String toString() {
 		return "Setup:\n" + StringUtils.join(setup, ",") + "\nProcedure:\n" + StringUtils.join(procedure, ",");
@@ -35,7 +44,7 @@ public class Procedure {
 	
 	public enum EnumAction {
 		read, determinant,
-		click, type, focus, sleep, wheel
+		click, type, focus, sleep, wheel, log
 	}
 	
 	public static class Action {
