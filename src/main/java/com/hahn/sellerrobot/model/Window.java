@@ -1,5 +1,7 @@
 package com.hahn.sellerrobot.model;
 
+import java.awt.Point;
+
 import com.hahn.sellerrobot.util.exceptions.GetWindowRectException;
 import com.hahn.sellerrobot.util.exceptions.ResizeWindowException;
 import com.hahn.sellerrobot.util.exceptions.WindowNotFoundException;
@@ -13,6 +15,14 @@ public interface Window {
 	 * @param height The new height
 	 */
 	void resize(int width, int height) throws WindowNotFoundException, GetWindowRectException, ResizeWindowException;
+	
+	/**
+	 * Get the top left of the window
+	 * @return The absolute top left point of the window 
+	 * @throws WindowNotFoundException
+	 * @throws GetWindowRectException
+	 */
+	Point getTopLeft() throws WindowNotFoundException, GetWindowRectException;
 	
 	/**
 	 * Click on a point on the app window

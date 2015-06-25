@@ -1,7 +1,9 @@
-package com.hahn.sellerrobot.model;
+package com.hahn.sellerrobot.controller;
 
+import java.util.ArrayList;
 import java.util.Map;
 
+import com.hahn.sellerrobot.model.ParamFactory;
 import com.hahn.sellerrobot.model.ParamFactory.Param;
 import com.hahn.sellerrobot.model.Procedure.Action;
 import com.hahn.sellerrobot.util.MapUtils;
@@ -17,6 +19,9 @@ public class ActionVerifier {
 		case determinant:
 		case read:
 			verifyParams(title, defparams, ParamFactory.get(String.class, "type"), ParamFactory.get(String.class, "filename"));
+			break;
+		case ifequ:
+			verifyParams(title, defparams, ParamFactory.get(Object.class, "var"), ParamFactory.get(String.class, "val"), ParamFactory.get(ArrayList.class, "then"));
 			break;
 		case click:
 			verifyParams(title, defparams, ParamFactory.get(Integer.class, "x"), ParamFactory.get(Integer.class, "y"));

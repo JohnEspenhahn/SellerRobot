@@ -5,13 +5,26 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hahn.sellerrobot.controller.ActionVerifier;
 import com.hahn.sellerrobot.util.MapUtils;
 import com.hahn.sellerrobot.util.exceptions.MissingArgumentException;
 
-public class Procedure {
+public class Procedure {	
 	private List<Action> setup;
 	private List<Action> procedure;
 	private List<Action> end;
+	
+	/**
+	 * Required to be called to load the points from the points.json
+	 * @param p The loaded points object
+	 * @throws MissingArgumentException 
+	 * @throws IllegalArgumentException 
+	 */
+	public void loadPoints(ClickPoints p) throws IllegalArgumentException, MissingArgumentException {
+		for (Action a: setup) a.loadPoints(p);
+		for (Action a: procedure) a.loadPoints(p);
+		for (Action a: end) a.loadPoints(p);
+	}
 	
 	public void setSetup(List<Action> setup) {
 		this.setup = setup;
@@ -44,14 +57,38 @@ public class Procedure {
 	
 	public enum EnumAction {
 		read, determinant,
-		click, type, focus, sleep, wheel, log
+		ifequ, click, type, focus, sleep, wheel, log
 	}
 	
 	public static class Action {
 		private EnumAction action;
-		private Map<String, Object> params;
+		private Object params;
 		
 		public Action() { }
+		
+		public Action(Map<String, Object> def, ClickPoints p) {
+			if (!def.containsKey("action")) throw new MissingArgumentException("Invalid action definition. Missing [action]");
+			else if (!def.containsKey("params")) throw new MissingArgumentException("Invalid action definition. Missing [params]");
+			
+			action = EnumAction.valueOf(def.get("action").toString());
+			params = def.get("params");
+			
+			loadPoints(p);
+		}
+		
+		/**
+		 * If needed loads parameters from the points object, then verify the parameters
+		 * @param p The points object
+		 */
+		public void loadPoints(ClickPoints p) {
+			if (params instanceof String) {
+				params = (Map<String, Integer>) p.getPoint((String) params);
+			} else if (!(params instanceof Map)) {
+				throw new IllegalArgumentException("Expected [params] in action definition to be a String point id constant or Map, but got " + params.getClass());
+			}
+			
+			ActionVerifier.verify(this);
+		}
 		
 		public EnumAction getAction() { 
 			return action; 
@@ -59,18 +96,15 @@ public class Procedure {
 		
 		public void setAction(EnumAction action) throws IllegalArgumentException, MissingArgumentException {
 			this.action = action;
-			
-			if (getParams() != null) ActionVerifier.verify(this);
 		}
 		
-		protected Map<String, Object> getParams() {
-			return params;
+		@SuppressWarnings("unchecked")
+		public Map<String, Object> getParams() {
+			return (Map<String, Object>) params;
 		}
 		
-		public void setParams(Map<String, Object> params) throws IllegalArgumentException, MissingArgumentException {
+		public void setParams(Object params) throws IllegalArgumentException, MissingArgumentException {
 			this.params = params;
-			
-			if (getAction() != null) ActionVerifier.verify(this);
 		}
 		
 		public boolean has(String name) {

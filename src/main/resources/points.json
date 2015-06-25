@@ -1,0 +1,92 @@
+{
+  "constants" : {
+    "main.sell" : {
+      "x" : 1363,
+      "y" : 814
+    },
+    "main.sell.gallery" : {
+      "x" : 39,
+      "y" : 850
+    },
+    "main.sell.gallery.pick_from_windows" : {
+      "x" : 225,
+      "y" : 312
+    },
+    "main.sell.photo_editor.done" : {
+      "x" : 1408,
+      "y" : 98
+    },
+    "main.sell.category" : {
+      "x" : 619,
+      "y" : 368
+    },
+    "main.sell.category.women" : {
+      "x" : 704,
+      "y" : 156
+    },
+    "main.sell.category.women.accessories" : {
+      "x" : 643,
+      "y" : 663
+    },
+    "main.sell.category.women.accessories.watches" : {
+      "x" : 672,
+      "y" : 437
+    },
+    "main.sell.brand" : {
+      "x" : 689,
+      "y" : 415
+    },
+    "main.sell.condition" : {
+      "x" : 669,
+      "y" : 459
+    },
+    "main.sell.condition.new" : {
+      "x" : 700,
+      "y" : 158
+    },
+    "main.sell.tab_pricing.fee" : {
+      "x" : 664,
+      "y" : 670
+    },
+    "main.sell.fee.very_small" : {
+      "x" : 595,
+      "y" : 279
+    },
+    "main.sell.fee.me" : {
+      "x" : 634,
+      "y" : 578
+    },
+    "main.sell.bottom.fee" : {
+      "x" : 698,
+      "y" : 414
+    },
+    "main.sell.bottom.paid_by" : {
+      "x" : 668,
+      "y" : 357
+    },
+    "main.sell.paid_by.me" : {
+      "x" : 680,
+      "y" : 287
+    },
+    "main.sell.paid_by.buyer" : {
+      "x" : 666,
+      "y" : 331
+    },
+    "main.sell.bottom.list" : {
+      "x" : 718,
+      "y" : 861
+    },
+    "main.create_another" : {
+      "x" : 714,
+      "y" : 500
+    },
+    "main.sell.side" : {
+      "x" : 1351,
+      "y" : 648
+    },
+    "main.sell.gallery.go_to_gallery" : {
+      "x" : 942,
+      "y" : 545
+    }
+  }
+}

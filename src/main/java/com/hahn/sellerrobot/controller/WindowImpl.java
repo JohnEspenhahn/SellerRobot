@@ -134,7 +134,7 @@ public class WindowImpl implements Window {
 		}
 	}
 	
-	private Point getTopLeft() throws WindowNotFoundException, GetWindowRectException {
+	public Point getTopLeft() throws WindowNotFoundException, GetWindowRectException {
 		refreshLocation();
 		return this.top_left;
 	}
@@ -192,6 +192,7 @@ public class WindowImpl implements Window {
 		bringToFront();
 		
 		Point loc = getTopLeft();
+		log.debug(loc);
 		log.debug(String.format("Clicking window %s at %dx%d", this.window_name, x, y));
 		// log.debug(String.format("Top left at absolute %dx%d", loc.x, loc.y));
 		
@@ -200,7 +201,7 @@ public class WindowImpl implements Window {
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			log.debug(e);
 		}
@@ -213,7 +214,15 @@ public class WindowImpl implements Window {
 		log.debug("Typing '" + text + "'");
 		bringToFront();
 		
-		for (char c: text.toCharArray()) type(c);
+		for (char c: text.toCharArray()) {
+			type(c);
+			
+			try {
+				Thread.sleep(50);
+			} catch (Exception e) {
+				log.error(e);
+			}
+		}
 	}
 
 	public void type(char character) {
@@ -292,8 +301,8 @@ public class WindowImpl implements Window {
         case '^': doType(VK_CIRCUMFLEX); break;
         case '&': doType(VK_AMPERSAND); break;
         case '*': doType(VK_ASTERISK); break;
-        case '(': doType(VK_LEFT_PARENTHESIS); break;
-        case ')': doType(VK_RIGHT_PARENTHESIS); break;
+        case '(': doType(VK_SHIFT, VK_9); break;
+        case ')': doType(VK_SHIFT, VK_0); break;
         case '_': doType(VK_UNDERSCORE); break;
         case '+': doType(VK_PLUS); break;
         case '\t': doType(VK_TAB); break;
