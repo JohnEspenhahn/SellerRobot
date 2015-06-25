@@ -32,10 +32,10 @@
 		{ action: "focus", params: { name: "BlueStacks App Player" } },
 		// Click DONE (won't appear for proper sized images, should still work)
 		// { action: "click", params: { x: 540, y: 440 } },
-		// { action: "sleep", params: { ms: 12000 } },
+		// { action: "sleep", params: { ms: 15000 } },
 		// Click second Done
 		{ action: "click", params: "main.sell.photo_editor.done" },
-		{ action: "sleep", params: { ms: 10000 } },
+		{ action: "sleep", params: { ms: 15000 } },
 		// Select category
 		{ action: "ifequ", params: { var: { type: "csv", filename: "images", column: 5 }, val: "women's watch", then: [
 				{ action: "log"  , params: { text: "Select category women's watch" } },

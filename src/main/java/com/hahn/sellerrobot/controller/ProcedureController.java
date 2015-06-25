@@ -2,6 +2,7 @@ package com.hahn.sellerrobot.controller;
 
 import java.awt.AWTException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +11,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.hahn.sellerrobot.Main;
+import com.hahn.sellerrobot.model.ClickPoints;
 import com.hahn.sellerrobot.model.FilesCollection;
 import com.hahn.sellerrobot.model.JSONObjectHandler;
-import com.hahn.sellerrobot.model.ClickPoints;
 import com.hahn.sellerrobot.model.Procedure;
 import com.hahn.sellerrobot.model.Procedure.Action;
 import com.hahn.sellerrobot.model.Procedure.EnumAction;
@@ -160,16 +161,15 @@ public class ProcedureController {
 	@SuppressWarnings("unchecked")
 	public void handleIfEqu(String var, String val, List<Object> then) throws MissingArgumentException, IOException, AWTException, WindowNotFoundException, GetWindowRectException, ResizeWindowException, WindowToForegroundException {
 		if (var.equals(val)) {
+			List<Action> actions = new ArrayList<Action>(then.size());
 			for (int i = 0; i < then.size(); i++) {
 				Object def = then.get(i);
 				if (!(def instanceof Map)) throw new IllegalArgumentException("Expected list of action definitions, but got " + def.getClass());
-				else then.set(i, new Action((Map<String, Object>) def, points));
+				else actions.add(new Action((Map<String, Object>) def, points));
 			}
 			
 			// They are all converted to actions at this point
-			for (Object action: then) {
-				handleAction((Action) action);
-			}
+			for (Action action: actions) handleAction(action);
 		}
 	}
 	
